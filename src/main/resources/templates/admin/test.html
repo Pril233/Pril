@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head th:include="include/admin/adminHeader::html('分类管理')"></head>
+
+<body>
+
+    <script>
+        $(function() {
+            var ifTest = new Vue({
+                el: '#ifTest',
+                data: {
+                    count: 0
+                },
+
+                methods: {
+                    trigger: function () {
+                            this.count++;
+                        if (this.count >= 5)
+                            this.count = 10;
+                    }
+                }
+
+
+            });
+        });
+
+    </script>
+    <div id="ifTest">
+        <button @click = "trigger">{{count}}</button>
+        <div>一共点击了  {{count}}次</div>
+
+    </div>
+</body>
+</html>

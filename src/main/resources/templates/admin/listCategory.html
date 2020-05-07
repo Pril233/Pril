@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="include/admin/adminHeader::html('分类管理')"></head>
+
+<body>
+<div th:replace="include/admin/adminNavigator::html"></div>
+<script>
+    $(function(){
+        var data4Vue = {         //js { 表示定义一个对象，大部分情况下要有成对的属性和值，或者函数；
+            uri:'categories',
+            pagination:{},  //表明pagination是一个类/对象
+            beans: [], //是一个bean类型的数组，bean定义在下面？
+            bean: { id: 0, name: ''},
+            file:null
+        };
+
+        //ViewModel
+        var vue = new Vue({
+            el:'#workingArea',
+            data:data4Vue,
+            mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+                this.list(0);
+            },
+            methods:{
+                list:function(start){
+                    var url = this.uri+"?start="+start;
+                    axios.get(url).then(function(response){
+                        vue.pagination = response.data;
+                        vue.beans = response.data.content;
+                    });
+                },
+                add:function(){
+                    if(!checkEmpty(this.bean.name,"分类名称"))
+                        return;
+                    if(!checkEmpty(this.file,"分类图片"))
+                        return;
+                    var url = this.uri;
+
+                    var formData = new FormData();
+                    formData.append("image",this.file);
+                    formData.append("name",this.bean.name);
+                   // 这里提交的name属性可以在Controller端自动检测Category类有name属性，所以会自动识别，
+                   // 把this.bean.name存到Category类的形参bean对象的name属性中~
+                    axios.post(url,formData).then(function(response){
+                        vue.list(0);
+                        vue.bean = {id:0, name:'', hp:'0'};
+                         $("#categoryPic").val('');
+                         vue.file = null;
+                    });
+                },
+                deleteBean:function(id){
+                  if(!checkDeleteLink())
+                      return;
+                  var url = this.uri+"/"+id;
+                  axios.delete(url).then(function(response){
+                      if(0!=response.data.length){
+                          alert(response.data);
+                      }
+                      else{
+                          vue.list(0);
+                      }
+
+                  })
+
+                },
+                getFile:function(event){
+                  this.file = event.target.files[0];
+                  //target 事件属性可返回事件的目标节点（触发该事件的节点），如生成事件的元素、文档或窗口。
+                  //属于js的一部分
+                },
+                jump: function(page){
+                    jump(page,vue); //定义在adminHeader.html 中
+                },
+                jumpByNumber: function(start){
+            jumpByNumber(start,vue);
+        }
+            }
+        });
+
+    });
+
+
+</script>
+<div id="workingArea">
+    <h1 class="label label-info">分类管理</h1>
+    <br>
+    <br>
+    <div class="listDataTableDiv">
+        <table class="table table-striped table-bordered table-hover table-condensed">
+
+            <thead>
+            <tr class="success">
+                <th>ID</th>
+                <th>图片</th>
+                <th>分类名称</th>
+                <th>属性管理</th>
+                <th>产品管理</th>
+                <th>编辑</th>
+                <th>删除</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr v-for="bean in beans">
+                    <td>{{bean.id}}</td>
+                    <td>
+                        <img height="40px" :src="'img/category/'+bean.id+'.jpg'">
+                    </td>
+                    <td>
+                        {{bean.name}}
+                    </td>
+                    <td>
+                        <a :href="'admin_property_list?cid='+bean.id"><span
+                        class="glyphicon glyphicon-th-list"></span></a>
+                        <!--:href 是vue写法 : 代表v-bind -->
+                    </td>
+                    <td>
+                        <a :href="'admin_product_list?cid=' + bean.id "><span
+                                class="glyphicon glyphicon-shopping-cart"></span></a>
+                    </td>
+                    <td>
+                        <a :href="'admin_category_edit?id=' + bean.id "><span
+                                class="glyphicon glyphicon-edit"></span></a>
+                    </td>
+                    <td>
+                        <a href="#nowhere"  @click="deleteBean(bean.id)"><span
+                                class="   glyphicon glyphicon-trash"></span></a>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="include/admin/adminPage::html" ></div>
+    <div class="panel panel-warning addDiv">
+        <div class="panel-heading">新增分类</div>
+        <div class="panel-body">
+            <table class="addTable">
+                <tr>
+                    <td>分类名称</td>
+                    <td><input @keyup.enter="add" v-model.trim="bean.name"
+                    type="text" class="form-control"></td>
+                    <!-- 只有在 keyCode 是 enter 时调用 add() -->
+                    <!-- v-model 双向绑定 trim 自动消除空格 -->
+                </tr>
+                <tr>
+                    <td>分类图片</td>
+                    <td>
+                        <input id="categoryPic" accept="image/*" type="file"
+                               name="image" @change="getFile($event)"/>
+                        <!-- @change v-on:change-->
+                        <!-- 可以通过$event进行对dom元素的获取-->
+
+                    </td>
+                </tr>
+                    <tr class="submitTR">
+                     <td colspan="2" align="center">
+                         <a href="#nowhere"  @click="add" class="btn btn-success">提交</a>
+                     </td>
+                    </tr>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+<div th:replace="include/admin/adminFooter::html" ></div>
+</body>
+</html>
