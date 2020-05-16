@@ -140,6 +140,8 @@ class Page4Navigator<T> {
     }
 
     Page4Navigator(Page<T> pageFromJPA, int navigatePages){
+        //然后在构造方法里提供了一个 navigatePages 参数。
+        // 这个参数如果传7，就表示如图所示的效果，前面3个，后面3个
         this.pageFromJPA = pageFromJPA
         this.navigatePages = navigatePages
 

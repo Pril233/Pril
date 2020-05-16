@@ -61,4 +61,19 @@ public class CategoryController {
         Category bean = categoryService.get(id);
         return bean;
     }
+
+    @PutMapping("/categories/{id}") //获取url中的id，id被自动装配到bean中
+    //为什么add中bean和img就可以自动注入，但是id，name就必须要获取一下参数呢？
+    //因为put 方式注入不了，或许是 springmvc 的bug ?
+    //结论：post和put 在获取参数的时候，不一样
+    public Object update(Category bean,MultipartFile image,HttpServletRequest request) throws Exception{
+        String name = request.getParameter("name");
+        bean.setName(name);
+        categoryService.update(bean);
+
+        if(image!=null){
+            saveOrUpdateImageFile(bean,image,request);
+        }
+        return bean;
+    }
 }

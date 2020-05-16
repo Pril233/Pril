@@ -32,7 +32,7 @@
                     if(!checkEmpty(this.bean.name,"分类名称"))
                         return;
                     var url = this.uri+"/"+this.bean.id;
-                    var formData = new ForData();
+                    var formData = new FormData();
                     formData.append("image",this.file);
                     formData.append("name",this.bean.name);
                     axios.put(url,formData).then(function(response){
