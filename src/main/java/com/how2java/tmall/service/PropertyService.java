@@ -51,4 +51,8 @@ public class PropertyService {
         //navigate导航页码数
 
     }
+
+    public List<Property> listByCategory(Category category){
+        return propertyDAO.findByCategory(category);
+    }
 }
